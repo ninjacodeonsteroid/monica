@@ -83,6 +83,7 @@
       ;if(!Object.prototype.hasOwnProperty.call(n._iq,e)){n._iq[e]={_q:[]};v(n._iq[e])
       }return n._iq[e]};e.amplitude=n})(window,document);
       amplitude.getInstance().init("2eb52f0b0d9614ce348b98fae8d6e3e4");
+      amplitude.getInstance().logEvent('Home Page Visited');
     </script>
   </head>
   <body data-account-id="{{ auth()->user()->account_id }}" class="bg-gray-monica min-vh-100 flex flex-column">
