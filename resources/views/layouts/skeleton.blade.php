@@ -95,6 +95,10 @@ MIXPANEL_CUSTOM_LIB_URL:"file:"===f.location.protocol&&"//cdn.mxpnl.com/libs/mix
 mixpanel.init('fa088c1c31b00ec2a1df0dea9a8344bb', {debug: true}); 
 mixpanel.track('Home Page Visited');
 </script>
+<script src="//fast.appcues.com/99701.js"></script>
+<script type="text/javascript">
+Appcues.page();
+</script>
   </head>
   <body data-account-id="{{ auth()->user()->account_id }}" class="bg-gray-monica min-vh-100 flex flex-column">
 
