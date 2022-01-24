@@ -98,6 +98,9 @@ mixpanel.track('Home Page Visited');
 <script src="//fast.appcues.com/99701.js"></script>
 <script type="text/javascript">
 Appcues.page();
+Appcues.identify("ZQhjWvTRBjZMCr4xecDucKeJY5K5JgWmXRvwbYdC9PfB6UJVWcZKyQjnKTh6MQgmxntkcwMWbD9SpuqWhZxFFtTgbMczt5KBg4L5a9CWqBrpVEa4vjkMB4TpsGzKB9WHNyqPxRnLjDZQTLvZUEC7km7BSwW5vJpU7CkvkxReLGFwjZmPvNyEKvSdQE8Ve7sWAB3wKKmm3RtWtDCMgL4C6LFx2qhRnAEMMxTn75kZxCMPSZcKBRdhdJE6KzMWY3kn", {
+    name: "Ninja Buddy",
+});
 </script>
 <script>
   (function(g,u,i,d,e,s){g[e]=g[e]||[];var f=u.getElementsByTagName(i)[0];var k=u.createElement(i);k.async=true;k.src='https://static.userguiding.com/media/user-guiding-'+s+'-embedded.js';f.parentNode.insertBefore(k,f);if(g[d])return;var ug=g[d]={q:[]};ug.c=function(n){return function(){ug.q.push([n,arguments])};};var m=['previewGuide','finishPreview','track','identify','triggerNps','hideChecklist','launchChecklist'];for(var j=0;j<m.length;j+=1){ug[m[j]]=ug.c(m[j]);}})(window,document,'script','userGuiding','userGuidingLayer','932062729ID'); 
