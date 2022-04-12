@@ -100,6 +100,7 @@ mixpanel.track('Home Page Visited');
 Appcues.page();
 Appcues.identify("ZQhjWvTRBjZMCr4xecDucKeJY5K5JgWmXRvwbYdC9PfB6UJVWcZKyQjnKTh6MQgmxntkcwMWbD9SpuqWhZxFFtTgbMczt5KBg4L5a9CWqBrpVEa4vjkMB4TpsGzKB9WHNyqPxRnLjDZQTLvZUEC7km7BSwW5vJpU7CkvkxReLGFwjZmPvNyEKvSdQE8Ve7sWAB3wKKmm3RtWtDCMgL4C6LFx2qhRnAEMMxTn75kZxCMPSZcKBRdhdJE6KzMWY3kn", {
     name: "Ninja Buddy",
+    "custom_1": "ABC"
 });
 </script>
 <script>
