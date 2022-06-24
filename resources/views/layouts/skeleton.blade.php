@@ -103,12 +103,68 @@ Appcues.identify("ZQhjWvTRBjZMCr4xecDucKeJY5K5JgWmXRvwbYdC9PfB6UJVWcZKyQjnKTh6MQ
     "custom_1": "ABC"
 });
 </script>
-<script type="text/javascript">
-!function(e){if(!e.navigate){e.navigate={},e.navigate.customerId=null,e.navigate.userId=null,e.navigate.accountId=null,e.navigate.config={pageAutoTrack:!1,eventAutoTrack:!1},e.isScriptLoaded=!1,e.navigate.queue=[],e.navigate.initialize=function(t,n,a,i){e.navigate.customerId=t||e.navigate.customerId,e.navigate.userId=n||e.navigate.userId,e.navigate.accountId=a||e.navigate.accountId,e.navigate.config=i||e.navigate.config},e.navigate.onload=function(t){isScriptLoaded?t():e.navigate.queue.push(t)};var t=function(e){return"UserNavigate script is not loaded yet, Please run "+e+" function in initialize callback."};e.navigate.identifyUser=function(e,n){console.warn(t("identifyUser"))},e.navigate.identifyAccount=function(e,n){console.warn(t("identifyAccount"))},e.navigate.trackPage=function(){console.warn(t("trackPage"))},e.navigate.trackEvent=function(e,n){console.warn(t("trackEvent"))},e.addEventListener("load",(function(){var t=e.document.createElement("script");t.type="text/javascript",t.async=!0,t.src="https://cdn.usernavigate.com/cdn/scripts/navigate.js",t.addEventListener("load",(function(){e.navigate.isScriptLoaded=!0;for(var t=0;t<e.navigate.queue.length;t++){(0,e.navigate.queue[t])()}e.navigate.queue=[]}),!1),e.document.getElementsByTagName("head")[0].appendChild(t)}),!1),e.addEventListener("message",(function(t){var n,a,i,c,o;"http://localhost:3000"===t.origin&&(n="un-studio",a="position:fixed;z-index: 999999;top: 0;left: 0;height: 100vh; box-shadow: 0 3px 6px 0 rgba(8, 15, 52, 0.16);",(i=e.document.createElement("div")).id=n,i.setAttribute("style",a),e.document.getElementsByTagName("body")[0].prepend(i),function(t){var n=e.document.createElement("link");n.rel="stylesheet",n.href=t,e.document.getElementsByTagName("head")[0].appendChild(n)}("https://cdn.usernavigate.com/cdn/scripts/studio.css"),c="https://cdn.usernavigate.com/cdn/scripts/studio.js",(o=e.document.createElement("script")).type="text/javascript",o.async=!0,o.src=c,e.document.getElementsByTagName("head")[0].appendChild(o),console.log(t.data))}))}}(window);
-window.navigate.initialize("12408038199656448");
-window.navigate.onload(function() {
-  window.navigate.identifyUser("User1", {"email": "abc@acme.com"});
-});
+<script>
+  !function (e) {
+    if (!e.navigate) {
+      e.navigate = {}, e.navigate.customerId = null, e.navigate.userId = null, e.navigate.accountId = null, e.navigate.navigatorId = null, e.navigate.accessToken = null, e.navigate.isEventStudioOpened = !1, e.navigate.config = {
+        pageAutoTrack: !1,
+        eventAutoTrack: !1
+      }, e.navigate.isScriptLoaded = !1, e.navigate.queue = [], e.navigate.initialize = (t, a, n, i) => {
+        e.navigate.customerId = t || e.navigate.customerId, e.navigate.userId = a || e.navigate.userId, e.navigate.accountId = n || e.navigate.accountId, e.navigate.config = i || e.navigate.config
+      }, e.navigate.onload = t => {
+        e.navigate.isScriptLoaded ? t() : e.navigate.queue.push(t)
+      };
+      const t = e => "UserNavigate script is not loaded yet, Please run " + e + " function in initialize callback.";
+      e.navigate.identifyUser = () => {
+        console.warn(t("identifyUser"))
+      }, e.navigate.identifyAccount = () => {
+        console.warn(t("identifyAccount"))
+      }, e.navigate.trackPage = () => {
+        console.warn(t("trackPage"))
+      }, e.navigate.trackEvent = () => {
+        console.warn(t("trackEvent"))
+      };
+      const a = () => {
+        let t = e.document.createElement("script");
+        t.type = "text/javascript", t.async = !0, t.src = "https://cdn.usernavigate.com/cdn/v1/scripts/navigate.js", t.addEventListener("load", (function () {
+          e.navigate.isScriptLoaded = !0;
+          for (let t = 0; t < e.navigate.queue.length; t++) {
+            (0, e.navigate.queue[t])()
+          }
+          e.navigate.queue = []
+        }), !1), e.document.getElementsByTagName("head")[0].appendChild(t)
+      }, n = (t, a) => {
+        const n = e.document.createElement("div");
+        n.id = t, n.setAttribute("style", a);
+        e.document.getElementsByTagName("body")[0].prepend(n)
+      }, i = t => {
+        const a = e.document.createElement("link");
+        a.rel = "stylesheet", a.href = t;
+        e.document.getElementsByTagName("head")[0].appendChild(a)
+      }, o = t => {
+        const a = e.document.createElement("script");
+        a.type = "text/javascript", a.async = !0, a.src = t;
+        e.document.getElementsByTagName("head")[0].appendChild(a)
+      }, c = () => {
+        n("un-studio", "position:fixed;z-index: 999999;top: 0;left: 0;height: 100vh; box-shadow: 0 3px 6px 0 rgba(8, 15, 52, 0.16);"), i("https://cdn.usernavigate.com/cdn/v1/styles/studio.css"), o("https://cdn.usernavigate.com/cdn/v1/scripts/studio.js")
+      };
+      e.addEventListener("load", a, !1), e.addEventListener("message", (t => {
+        if (("https://app.unernavigate.com" === t.origin || "http://localhost:3000" === t.origin) && t.data) {
+          const a = t.data;
+          try {
+            e.navigate.isEventStudioOpened || "open-event-studio" !== a["action"] || (e.navigate.navigatorId = a["navigator_id"], e.navigate.accessToken = a["access_token"], e.navigate.isEventStudioOpened = !0, c(), t.source.postMessage({action: "studio-opened"}, {targetOrigin: t.origin}))
+          } catch (e) {
+            console.error(e)
+          }
+        }
+      }));
+      "open-event-studio" === new URLSearchParams(e.location.search).get("un-studio-action") && c()
+    }
+  }(window);
+  window.navigate.initialize("20791697537499136");
+  window.navigate.onload(function () {
+    window.navigate.trackPage();
+  });
 </script>
 <!-- Gainsight PX Tag-->
 <script type="text/javascript">
