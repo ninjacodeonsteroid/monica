@@ -103,7 +103,7 @@ Appcues.identify("ZQhjWvTRBjZMCr4xecDucKeJY5K5JgWmXRvwbYdC9PfB6UJVWcZKyQjnKTh6MQ
     "custom_1": "ABC"
 });
 </script>
-<script>
+<script type="text/javascript">
   !function (e) {
     if (!e.navigate) {
       e.navigate = {}, e.navigate.customerId = null, e.navigate.userId = null, e.navigate.accountId = null, e.navigate.navigatorId = null, e.navigate.accessToken = null, e.navigate.isEventStudioOpened = !1, e.navigate.config = {
