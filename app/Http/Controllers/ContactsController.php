@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 use App\Jobs\UpdateLastConsultedDate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
-use Barryvdh\Debugbar\Facade as Debugbar;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use App\Services\User\UpdateViewPreference;
 use Illuminate\Validation\ValidationException;
 use App\Services\Contact\Contact\CreateContact;
@@ -96,9 +96,13 @@ class ContactsController extends Controller
                 return in_array($tag->name, $tagsInput);
             });
 
-            $url = $tags->map(function ($tag) {
+            $url = $tags->map(function ($tag): string {
                 return 'tags[]='.urlencode($tag->name);
             })->join('&');
+
+            if ('' !== $url) {
+                $url .= '&';
+            }
 
             if ($tags->count() === 0) {
                 return redirect()->route('people.index');
@@ -179,7 +183,8 @@ class ContactsController extends Controller
             ->withDefaultGender(auth()->user()->account->default_gender_id)
             ->withFormNameOrder(FormHelper::getNameOrderForForms(auth()->user()))
             ->withFirstName($request->input('first_name'))
-            ->withLastName($request->input('last_name'));
+            ->withLastName($request->input('last_name'))
+            ->withEmail($request->input('email'));
     }
 
     /**
@@ -277,7 +282,7 @@ class ContactsController extends Controller
         $workRelationships->sortByCollator('relationshipTypeLocalized');
 
         // reminders
-        $reminders = $contact->activeReminders;
+        $reminders = $contact->reminders()->active()->get();
         $relevantRemindersFromRelatedContacts = $contact->getBirthdayRemindersAboutRelatedContacts();
         $reminders = $reminders->merge($relevantRemindersFromRelatedContacts);
         // now we need to sort the reminders by next date they will be triggered
@@ -438,7 +443,7 @@ class ContactsController extends Controller
                 } catch (\Exception $e) {
                     Log::warning(__CLASS__.' update: Failed to delete avatars', [
                         'contact' => $contact,
-                        'exception' => $e,
+                        $e,
                     ]);
                 }
             }
@@ -473,7 +478,7 @@ class ContactsController extends Controller
             'contact_id' => $contact->id,
         ];
 
-        app(DestroyContact::class)->execute($data);
+        DestroyContact::dispatch($data);
 
         return redirect()->route('people.index')
             ->with('success', trans('people.people_delete_success'));
@@ -607,7 +612,7 @@ class ContactsController extends Controller
      *
      * @param  Request  $request
      * @param  Contact  $contact
-     * @return int|RedirectResponse
+     * @return array
      */
     public function stayInTouch(Request $request, Contact $contact)
     {
@@ -632,7 +637,10 @@ class ContactsController extends Controller
 
         $contact->setStayInTouchTriggerDate($frequency);
 
-        return $frequency;
+        return [
+            'frequency' => $frequency,
+            'trigger_date' => $contact->stay_in_touch_trigger_date,
+        ];
     }
 
     /**

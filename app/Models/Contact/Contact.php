@@ -3,7 +3,9 @@
 namespace App\Models\Contact;
 
 use DateTime;
+use App\Traits\HasUuid;
 use App\Traits\Searchable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Helpers\LocaleHelper;
 use App\Models\Account\Photo;
@@ -21,11 +23,13 @@ use App\Models\Account\AddressBook;
 use App\Models\Instance\SpecialDate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use IlluminateAgnostic\Arr\Support\Arr;
 use App\Models\Account\ActivityStatistic;
 use App\Models\Relationship\Relationship;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Prunable;
 use App\Models\ModelBindingHasher as Model;
+use LaravelAdorable\Facades\LaravelAdorable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -42,7 +46,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
  */
 class Contact extends Model
 {
-    use Searchable;
+    use Searchable, SoftDeletes, Prunable, HasUuid;
 
     /** @var array<string> */
     protected $dates = [
@@ -86,7 +90,7 @@ class Contact extends Model
         'is_partial',
         'is_starred',
         'avatar_source',
-        'avatar_adorable_url',
+        'avatar_adorable_uuid',
         'avatar_gravatar_url',
         'avatar_default_url',
         'avatar_photo_id',
@@ -99,6 +103,7 @@ class Contact extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'uuid',
         'first_name',
         'middle_name',
         'last_name',
@@ -116,12 +121,16 @@ class Contact extends Model
         'last_consulted_at',
         'created_at',
         'first_met_additional_info',
+        'address_book_id',
+        'vcard',
+        'avatar_gravatar_url',
+        'avatar_source',
     ];
 
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array<string>|bool
      */
     protected $guarded = ['id'];
 
@@ -139,7 +148,7 @@ class Contact extends Model
     /**
      * The attributes that should be cast to native types.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'is_partial' => 'boolean',
@@ -264,16 +273,6 @@ class Contact extends Model
     public function reminders()
     {
         return $this->hasMany(Reminder::class);
-    }
-
-    /**
-     * Get only the active reminder records associated with the contact.
-     *
-     * @return HasMany
-     */
-    public function activeReminders()
-    {
-        return $this->hasMany(Reminder::class)->active();
     }
 
     /**
@@ -641,6 +640,51 @@ class Contact extends Model
         }
 
         return $query->where('address_book_id', $addressBook ? $addressBook->id : null);
+    }
+
+    /**
+     * Get contacts ordered by user preferences.
+     *
+     * @param  Builder  $query
+     * @return Builder
+     */
+    public function scopeOrderByUserPreference(Builder $query): Builder
+    {
+        switch (Auth::user()->name_order) {
+            case 'firstname_lastname':
+                $query = $query->orderBy('first_name')
+                    ->orderBy('last_name');
+                break;
+            case 'firstname_lastname_nickname':
+                $query = $query->orderBy('first_name')
+                    ->orderBy('last_name')
+                    ->orderBy('nickname');
+                break;
+            case 'firstname_nickname_lastname':
+                $query = $query->orderBy('first_name')
+                    ->orderBy('nickname')
+                    ->orderBy('last_name');
+                break;
+            case 'nickname':
+                $query = $query->orderBy('nickname');
+                break;
+            case 'lastname_firstname':
+                $query = $query->orderBy('last_name')
+                    ->orderby('first_name');
+                break;
+            case 'lastname_firstname_nickname':
+                $query = $query->orderBy('last_name')
+                    ->orderby('first_name')
+                    ->orderby('nickname');
+                break;
+            case 'lastname_nickname_firstname':
+                $query = $query->orderBy('last_name')
+                    ->orderby('nickname')
+                    ->orderby('first_name');
+                break;
+        }
+
+        return $query;
     }
 
     /**
@@ -1077,30 +1121,13 @@ class Contact extends Model
      * @param  string|null  $value
      * @return string|null
      */
-    public function getAvatarAdorableUrlAttribute(?string $value): ?string
+    public function getAvatarAdorableDataUrlAttribute(?string $value): ?string
     {
-        if (isset($value) && $value !== '') {
-            return Str::of($value)
-                ->after('https://api.adorable.io/avatars/')
-                ->ltrim('/')
-                ->start(Str::finish(config('monica.adorable_api'), '/'));
+        if (isset($this->avatar_adorable_uuid) && $this->avatar_adorable_uuid !== '') {
+            return LaravelAdorable::get(config('monica.avatar_size'), $this->avatar_adorable_uuid);
         }
 
         return null;
-    }
-
-    /**
-     * Set the adorable avatar URL.
-     *
-     * @param  string|null  $value
-     * @return void
-     */
-    public function setAvatarAdorableUrlAttribute(?string $value)
-    {
-        if (isset($value) && $value !== '') {
-            $value = Str::of($value)->replace(Str::finish(config('monica.adorable_api'), '/'), '');
-        }
-        $this->attributes['avatar_adorable_url'] = $value;
     }
 
     /**
@@ -1119,13 +1146,17 @@ class Contact extends Model
 
         switch ($this->avatar_source) {
             case 'adorable':
-                $avatarURL = $this->avatar_adorable_url;
+                $avatarURL = $this->avatar_adorable_data_url;
                 break;
             case 'gravatar':
                 $avatarURL = $this->avatar_gravatar_url;
                 break;
             case 'photo':
-                $avatarURL = $this->avatarPhoto()->first()->url();
+                if ($this->avatarPhoto) {
+                    $avatarURL = $this->avatarPhoto()->first()->url();
+                } else {
+                    $avatarURL = $this->getAvatarDefaultURL();
+                }
                 break;
             case 'default':
             default:
@@ -1139,10 +1170,12 @@ class Contact extends Model
     /**
      * Delete avatars files.
      * This does not touch avatar_location or avatar_file_name properties of the contact.
+     *
+     * @param  bool  $force
      */
-    public function deleteAvatars()
+    public function deleteAvatars(bool $force = false)
     {
-        if (! $this->has_avatar || $this->avatar_location == 'external') {
+        if (! $force && (! $this->has_avatar || $this->avatar_location == 'external')) {
             return;
         }
 
@@ -1192,7 +1225,7 @@ class Contact extends Model
      */
     public function getTagsAsString()
     {
-        return $this->tags->map(function ($tag) {
+        return $this->tags->map(function (Tag $tag): string {
             return $tag->name;
         })->join(',');
     }
@@ -1218,9 +1251,7 @@ class Contact extends Model
             ->debts()
             ->inProgress()
             ->getResults()
-            ->filter(function ($d) {
-                return Arr::has($d->attributes, 'amount');
-            })
+            ->filter(fn ($d) => Arr::has($d->attributes, 'amount'))
             ->sum(function ($d) {
                 $amount = $d->attributes['amount'];
 
@@ -1341,7 +1372,7 @@ class Contact extends Model
     {
         $relationships = $this->relationships->filter(function ($item) {
             return ! is_null($item->ofContact) &&
-                   ! is_null($item->ofContact->birthday_special_date_id);
+                   $item->ofContact->birthday_special_date_id > 0;
         });
 
         $reminders = collect();
@@ -1478,7 +1509,7 @@ class Contact extends Model
         $timestamps = $this->timestamps;
         $this->timestamps = false;
 
-        if ($frequency == 0) {
+        if ($frequency === 0) {
             $this->stay_in_touch_trigger_date = null;
         } else {
             $triggerDate = $triggerDate ?? now();
@@ -1495,9 +1526,9 @@ class Contact extends Model
      * Get the weather information for this contact, based on the first address
      * on the profile.
      *
-     * @return Weather
+     * @return Weather|null
      */
-    public function getWeather()
+    public function getWeather(): ?Weather
     {
         return WeatherHelper::getWeatherForAddress($this->addresses()->first());
     }
@@ -1523,5 +1554,27 @@ class Contact extends Model
                 trans('people.archived_contact_readonly'),
             ]);
         }
+    }
+
+    /**
+     * Get the prunable model query.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     * @codeCoverageIgnore
+     */
+    public function prunable()
+    {
+        return static::where('deleted_at', '<=', now()->subWeek());
+    }
+
+    /**
+     * Prepare the model for pruning.
+     *
+     * @return void
+     * @codeCoverageIgnore
+     */
+    protected function pruning()
+    {
+        $this->deleteAvatars(true);
     }
 }

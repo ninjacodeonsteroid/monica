@@ -2,6 +2,7 @@
 
 namespace App\Models\Account;
 
+use App\Traits\HasUuid;
 use App\Models\User\User;
 use App\Models\Contact\Tag;
 use App\Models\Journal\Day;
@@ -53,12 +54,19 @@ use App\Services\Auth\Population\PopulateContactFieldTypesTable;
  */
 class Account extends Model
 {
-    use Subscription;
+    use Subscription, HasUuid;
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array<string>|bool
+     */
+    protected $guarded = ['id'];
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $fillable = [
         'number_of_invitations_sent',
@@ -70,7 +78,7 @@ class Account extends Model
     /**
      * The attributes that should be cast to native types.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'has_access_to_paid_version_for_free' => 'boolean',
@@ -479,6 +487,26 @@ class Account extends Model
     public function addresses()
     {
         return $this->hasMany(Address::class);
+    }
+
+    /**
+     * Get the Address Books records associated with the account.
+     *
+     * @return HasMany
+     */
+    public function addressBooks()
+    {
+        return $this->hasMany(AddressBook::class);
+    }
+
+    /**
+     * Get the Address Book Subscriptions records associated with the account.
+     *
+     * @return HasMany
+     */
+    public function addressBookSubscriptions()
+    {
+        return $this->hasMany(AddressBookSubscription::class);
     }
 
     /**

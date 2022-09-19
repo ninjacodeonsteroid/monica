@@ -14,7 +14,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
+        \App\Http\Middleware\TrustProxies::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
@@ -94,7 +94,7 @@ class Kernel extends HttpKernel
      *
      * This forces the listed middleware to always be in the given order.
      *
-     * @var array
+     * @var array<string>
      */
     protected $middlewarePriority = [
         \Illuminate\Session\Middleware\StartSession::class,

@@ -2,6 +2,7 @@
 
 namespace App\Models\Instance;
 
+use App\Traits\HasUuid;
 use App\Helpers\DateHelper;
 use Illuminate\Support\Carbon;
 use App\Models\Account\Account;
@@ -26,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class SpecialDate extends Model
 {
+    use HasUuid;
+
     /**
      * The table associated with the model.
      *
@@ -36,7 +39,7 @@ class SpecialDate extends Model
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array<string>|bool
      */
     protected $guarded = ['id'];
 
@@ -50,14 +53,14 @@ class SpecialDate extends Model
     /**
      * The attributes that should be mutated to dates.
      *
-     * @var array
+     * @var array<string>
      */
     protected $dates = ['date'];
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $fillable = [
         'contact_id',
@@ -67,7 +70,7 @@ class SpecialDate extends Model
     /**
      * The attributes that should be cast to native types.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'is_age_based' => 'boolean',
@@ -134,7 +137,7 @@ class SpecialDate extends Model
     public function createFromAge(int $age)
     {
         $this->is_age_based = true;
-        $this->date = now()->subYears($age)->month(1)->day(1);
+        $this->date = now(DateHelper::getTimezone())->subYears($age)->month(1)->day(1);
         $this->save();
 
         return $this;

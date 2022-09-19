@@ -249,11 +249,10 @@ return [
     | API key for weather data.
     |--------------------------------------------------------------------------
     |
-    | To provide weather information, we use Darksky.
-    | Darksky provides an api with 1000 free API calls per day.
-    | https://darksky.net/dev/register
+    | To provide weather information, we use WeatherAPI.
+    | See https://www.weatherapi.com/
     */
-    'darksky_api_key' => env('DARKSKY_API_KEY', null),
+    'weatherapi_key' => env('WEATHERAPI_KEY', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -276,14 +275,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default adorable api url
+    | Export size count
     |--------------------------------------------------------------------------
     |
-    | The default adorable api url.
+    | Number of exports available. When the number of exports is reached, the
+    | oldest export will be deleted.
     |
-    | You can host your own version, see https://github.com/itsthatguy/avatars-api-middleware
-    | or https://hub.docker.com/r/aldrio/adorable-avatars.
     */
-    'adorable_api' => env('ADORABLE_API', 'https://api.hello-avatar.com/adorables/'),
+    'export_size' => (int) env('EXPORT_SIZE', 5),
 
 ];

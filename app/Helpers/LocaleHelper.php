@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Matriphe\ISO639\ISO639;
 use function Safe\preg_match;
 use function Safe\preg_split;
@@ -60,7 +61,7 @@ class LocaleHelper
 
         if (is_null($countryCode)) {
             $country = CountriesHelper::getCountryFromLocale($locale);
-            $countryCode = $country->cca2;
+            $countryCode = $country->getIsoAlpha2();
         }
 
         return mb_strtoupper($countryCode);
@@ -93,7 +94,7 @@ class LocaleHelper
      */
     public static function getLocaleList()
     {
-        return collect(config('lang-detector.languages'))->map(function ($lang) {
+        return collect(config('lang-detector.languages'))->map(function (string $lang): array {
             return [
                 'lang' => $lang,
                 'name' => self::getLocaleName($lang),
@@ -117,7 +118,7 @@ class LocaleHelper
             $name = $lang;
         }
 
-        return $name;
+        return (string) Str::of($name);
     }
 
     /**

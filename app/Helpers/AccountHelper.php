@@ -131,9 +131,15 @@ class AccountHelper
         return $account->reminderOutboxes()
             ->with(['reminder', 'reminder.contact'])
             ->whereBetween('planned_date', [$startOfMonth, $endOfMonth])
-            ->where('nature', 'reminder')
+            ->where([
+                'user_id' => auth()->user()->id,
+                'nature' => 'reminder',
+            ])
             ->orderBy('planned_date', 'asc')
-            ->get();
+            ->get()
+            ->filter(function ($reminderOutbox) {
+                return $reminderOutbox->reminder->contact !== null;
+            });
     }
 
     /**

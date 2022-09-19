@@ -10,8 +10,6 @@
     "hot": "mix watch --hot",
     "prod": "yarn production",
     "production": "mix --production",
-    "predevelopment": "php artisan lang:generate -vvv",
-    "prewatch": "php artisan lang:generate -vvv",
     "preproduction": "php artisan lang:generate -vvv",
     "heroku-postbuild": "yarn run production",
     "e2e": "cypress run",
@@ -36,6 +34,10 @@
     "posttest": "vendor/bin/phpstan analyse && vendor/bin/psalm",
     "composer update": "COMPOSER_MEMORY_LIMIT=-1 composer update"
   },
+  "engines": {
+    "node": "18.x",
+    "yarn": "1.22.x"
+  },
   "devDependencies": {
     "cross-env": "^7.0",
     "cypress": "^7.2.0",
@@ -48,8 +50,8 @@
     "eslint-plugin-standard": ">=4.0.0",
     "eslint-plugin-vue": "^7.0",
     "faker": "^5.1",
-    "mocha": "^8.1",
-    "mocha-junit-reporter": "^2.0",
+    "mocha": "^9.1.2",
+    "mocha-junit-reporter": "^2.0.2",
     "mocha-multi-reporters": "^1.1",
     "moment-locales-webpack-plugin": "^1.2",
     "postcss": "^8.2.13",
@@ -91,7 +93,7 @@
     "vue-notification": "^1.3",
     "vue-rx": "^6.2",
     "vue-select": "^3.11",
-    "vuejs-clipper": "^3.1",
+    "vuejs-clipper": "4.0.0",
     "vuelidate": "^0.7"
   },
   "snyk": true

@@ -2,6 +2,7 @@
 
 namespace App\Models\Contact;
 
+use App\Traits\HasUuid;
 use App\Models\Account\Account;
 use App\Interfaces\LabelInterface;
 use App\Models\ModelBindingWithContact as Model;
@@ -10,10 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ContactField extends Model implements LabelInterface
 {
+    use HasUuid;
+
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array<string>|bool
      */
     protected $guarded = ['id'];
 
